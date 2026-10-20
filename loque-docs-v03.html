@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitur Customer Loque</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#ffffff;
+    --panel:#ffffff;
+    --subtle:#f4f5f6;
+    --ink:#0b0c0d;
+    --ink-soft:#4a4f55;
+    --line:#d3d6da;
+    --silver:#8f959c;
+    --accent:#047857;
+    --accent-strong:#065f46;
+    --accent-ink:#ffffff;
+    --accent-soft:#e6f4ee;
+    --radius:10px;
+    --side-w:264px;
+    --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  /* Default terang. Gelap hanya jika dipilih. */
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0a0b0c; --panel:#111314; --subtle:#181b1d; --ink:#f3f4f5; --ink-soft:#a4aab0;
+    --line:#2a2e32; --silver:#7d848b; --accent:#34d399; --accent-strong:#6ee7b7;
+    --accent-ink:#04120c; --accent-soft:#0f2a20;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; font-feature-settings:"cv11","ss01";
+  }
+  ::selection{background:var(--accent); color:var(--accent-ink);}
+  a{color:var(--accent);}
+  code{font-family:var(--mono); font-size:.82em; background:var(--subtle); border:1px solid var(--line); padding:1px 6px; border-radius:5px; overflow-wrap:anywhere;}
+  button,input{font:inherit; color:inherit;}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:6px;}
+
+  .shell{display:flex; max-width:1360px; margin:0 auto;}
+
+  /* ---------- sidebar ---------- */
+  nav.side{
+    position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto; flex:none;
+    width:var(--side-w); padding:28px 20px 24px 28px; border-right:1px solid var(--line);
+    background:var(--bg); display:flex; flex-direction:column;
+  }
+  .brand{display:flex; align-items:center; gap:11px; margin-bottom:28px;}
+  .brand-mark{width:28px; height:28px; border-radius:8px; background:var(--ink); position:relative; flex:none;}
+  .brand-mark::after{content:""; position:absolute; right:6px; bottom:6px; width:9px; height:9px; border-radius:50%; background:var(--accent);}
+  .brand-name{font-weight:700; font-size:1.05rem; letter-spacing:-.01em; line-height:1.15;}
+  .brand-name small{display:block; font-size:.66rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-top:2px;}
+
+  .nav-group{margin-bottom:22px;}
+  .nav-group h4{margin:0 0 6px 8px; font-size:.66rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--silver);}
+  .nav-group a{
+    display:flex; align-items:center; gap:9px; padding:6px 8px; border-radius:8px;
+    font-size:.88rem; font-weight:500; color:var(--ink-soft); text-decoration:none;
+  }
+  .nav-group a:hover{color:var(--ink); background:var(--subtle);}
+  .nav-group a[aria-current="true"]{color:var(--accent-strong); background:var(--accent-soft); font-weight:600;}
+  .nav-group a .dot{width:6px; height:6px; border-radius:50%; background:var(--line); flex:none;}
+  .nav-group a[aria-current="true"] .dot{background:var(--accent);}
+  .nav-group a .n{margin-left:auto; font-size:.72rem; color:var(--silver); font-variant-numeric:tabular-nums;}
+
+  .side-foot{margin-top:auto; padding-top:16px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .side-foot .ver{font-size:.74rem; color:var(--silver);}
+  .theme-btn{
+    background:var(--subtle); border:1px solid var(--line); border-radius:8px; padding:6px 11px;
+    font-size:.8rem; font-weight:500; cursor:pointer; color:var(--ink); white-space:nowrap;
+  }
+  .theme-btn:hover{border-color:var(--silver);}
+
+  .mbar{display:none;}
+  .scrim{display:none;}
+
+  /* ---------- main ---------- */
+  main{flex:1; min-width:0; padding:52px 56px 104px;}
+  .content{max-width:960px;}
+
+  .hero{margin-bottom:64px;}
+  .eyebrow{font-size:.72rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--accent);}
+  .hero h1{font-size:clamp(1.9rem,3.4vw,2.5rem); line-height:1.12; letter-spacing:-.025em; font-weight:700; margin:12px 0 16px; max-width:22ch; text-wrap:balance;}
+  .hero p.lead{font-size:1.05rem; color:var(--ink-soft); max-width:58ch; margin:0;}
+  .meta{margin:18px 0 0; font-size:.8rem; color:var(--silver);}
+
+  section{margin-bottom:68px; scroll-margin-top:28px;}
+  section > h2{font-size:1.4rem; font-weight:700; letter-spacing:-.015em; margin:0 0 8px;}
+  section > p.sub{margin:0 0 24px; color:var(--ink-soft); max-width:62ch;}
+
+  /* alur */
+  .flow{display:grid; grid-template-columns:repeat(5,1fr); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel);}
+  .flow-step{padding:18px 18px 20px; border-right:1px solid var(--line);}
+  .flow-step:last-child{border-right:none;}
+  .flow-step .fn{display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:50%; background:var(--accent); color:var(--accent-ink); font-size:.78rem; font-weight:700; margin-bottom:10px;}
+  .flow-step h3{margin:0 0 4px; font-size:.95rem; font-weight:600;}
+  .flow-step p{margin:0; font-size:.85rem; color:var(--ink-soft);}
+
+  .cards{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px;}
+  .card{border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; background:var(--panel);}
+  .card h3{margin:0 0 6px; font-size:.7rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--accent-strong);}
+  .card p{margin:0; font-size:.9rem;}
+
+  /* ---------- tables ---------- */
+  .table-wrap{border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel);}
+  table{width:100%; border-collapse:collapse;}
+  th{
+    text-align:left; font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); background:var(--subtle); padding:11px 18px; border-bottom:1px solid var(--line);
+  }
+  td{padding:15px 18px; vertical-align:top; border-bottom:1px solid var(--line); font-size:.9rem; line-height:1.6;}
+  tr:last-child td{border-bottom:none;}
+  td.no{width:58px; color:var(--silver); font-variant-numeric:tabular-nums; font-weight:600;}
+  td.feat{width:28%; font-weight:600;}
+  tr.group td{background:var(--subtle); font-weight:700; font-size:.82rem; padding:11px 18px; border-top:1px solid var(--line);}
+  tr.group{scroll-margin-top:24px;}
+  tr.group:first-child td{border-top:none;}
+  tr.group td span{font-weight:500; color:var(--ink-soft); margin-left:8px;}
+  .tags{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;}
+  .tag{
+    font-size:.64rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    padding:2px 9px; border-radius:20px; white-space:nowrap; border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .tag.changed{border-color:var(--accent); color:var(--accent-strong); background:var(--accent-soft);}
+  .tag.new{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .tag.open{border-style:dashed; border-color:var(--ink); color:var(--ink);}
+  .tag.parked{background:var(--subtle); color:var(--ink-soft);}
+  .tag.internal{background:var(--ink); border-color:var(--ink); color:var(--bg);}
+  .note{margin:4px 0 0; font-size:.88rem; color:var(--ink-soft);}
+  .note b{color:var(--ink); font-weight:600;}
+  .empty{padding:40px 16px; text-align:center; color:var(--ink-soft);}
+
+  /* filters */
+  .filters{display:flex; flex-direction:column; gap:12px; margin-bottom:18px;}
+  .search{width:100%; max-width:380px; padding:10px 14px; font-size:16px; background:var(--panel); border:1px solid var(--line); border-radius:8px;}
+  .search::placeholder{color:var(--silver);}
+  .chips{display:flex; gap:7px; flex-wrap:wrap; align-items:center;}
+  .chip{
+    background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:5px 13px;
+    font-size:.8rem; font-weight:500; cursor:pointer; color:var(--ink-soft);
+  }
+  .chip:hover{border-color:var(--silver); color:var(--ink);}
+  .chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+  .count-line{font-size:.8rem; color:var(--silver); margin:0 0 12px;}
+
+  /* ---------- internal ---------- */
+  .internal{border:1px dashed var(--silver); border-radius:var(--radius); padding:24px 26px; background:var(--panel);}
+  .int-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .pill{display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:var(--bg); padding:3px 10px; border-radius:20px; margin-bottom:10px;}
+  .internal h2{margin:0 0 4px;}
+  .internal .sub{margin:0; color:var(--ink-soft); font-size:.9rem;}
+  .int-btn{
+    background:var(--accent); color:var(--accent-ink); border:1px solid var(--accent); border-radius:8px;
+    padding:8px 16px; font-size:.86rem; font-weight:600; cursor:pointer; flex:none;
+  }
+  .int-btn:hover{background:var(--accent-strong); border-color:var(--accent-strong);}
+  .int-body{margin-top:28px;}
+  .int-body[hidden]{display:none;}
+  .sub-h{font-size:1.02rem; font-weight:600; margin:40px 0 12px;}
+  .sub-h:first-child{margin-top:0;}
+  .sub-p{margin:-4px 0 14px; font-size:.88rem; color:var(--ink-soft);}
+  .parked-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px;}
+  .pcard{border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; background:var(--panel);}
+  .pcard h3{margin:0 0 8px; font-size:.95rem; font-weight:600;}
+  .pcard ul{margin:0; padding-left:18px; font-size:.88rem; color:var(--ink-soft);}
+  .pcard li{margin:5px 0;}
+  td.chk{width:56px;}
+  td.chk input{width:18px; height:18px; accent-color:var(--accent); cursor:pointer;}
+  .timeline{display:flex; flex-wrap:wrap; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:8px; background:var(--panel);}
+  .tl{flex:1; min-width:140px; padding:14px 18px; border-right:1px solid var(--line);}
+  .tl:last-child{border-right:none;}
+  .tl b{display:block; font-size:.95rem;}
+  .tl span{font-size:.82rem; color:var(--ink-soft);}
+  .foot-note{font-size:.82rem; color:var(--silver); margin:12px 0 0;}
+
+  .log{list-style:none; padding:0; margin:0;}
+  .log > li{border-left:2px solid var(--line); padding:0 0 18px 20px; position:relative; margin-left:6px;}
+  .log > li::before{content:""; position:absolute; left:-6px; top:6px; width:10px; height:10px; border-radius:50%; background:var(--accent);}
+  .log .d{font-size:.78rem; color:var(--silver); display:block; font-variant-numeric:tabular-nums;}
+  .log ul{margin:8px 0 0; padding-left:18px; color:var(--ink-soft); font-size:.88rem;}
+  .log ul li{margin:3px 0;}
+  .edit-note{margin-top:40px; font-size:.82rem; color:var(--ink-soft);}
+
+  footer{padding-top:20px; border-top:1px solid var(--line); font-size:.82rem; color:var(--silver);}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:1200px){ main{padding:44px 36px 96px;} }
+  @media (max-width:1000px){
+    .mbar{
+      display:flex; align-items:center; gap:12px; position:sticky; top:0; z-index:30;
+      height:56px; padding:0 16px; background:var(--bg); border-bottom:1px solid var(--line);
+    }
+    .mbar .brand{margin:0; flex:1;}
+    .menu-btn{
+      background:var(--subtle); border:1px solid var(--line); border-radius:8px; width:40px; height:40px;
+      display:flex; align-items:center; justify-content:center; cursor:pointer; flex:none;
+    }
+    .menu-btn svg{width:20px; height:20px; stroke:var(--ink); fill:none; stroke-width:2; stroke-linecap:round;}
+    .shell{display:block;}
+    nav.side{
+      position:fixed; top:0; left:0; bottom:0; height:100%; z-index:50; width:min(300px,86vw);
+      transform:translateX(-100%); visibility:hidden;
+      transition:transform .22s ease, visibility 0s linear .22s;
+    }
+    nav.side.open{transform:none; visibility:visible; transition:transform .22s ease, visibility 0s; box-shadow:12px 0 40px rgba(0,0,0,.18);}
+    nav.side .brand{margin-bottom:24px;}
+    .scrim{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.45);}
+    .scrim.show{display:block;}
+    main{padding:32px 20px 80px;}
+    section{scroll-margin-top:72px;}
+    tr.group{scroll-margin-top:72px;}
+    .flow{grid-template-columns:repeat(2,1fr);}
+    .flow-step{border-bottom:1px solid var(--line);}
+  }
+  @media (max-width:760px){
+    .table-wrap{border:none; background:transparent; overflow:visible;}
+    thead{display:none;}
+    table, tbody, tr, td{display:block; width:100%;}
+    tr.row, tr.brow, tr.srow{
+      border:1px solid var(--line); border-radius:var(--radius); background:var(--panel);
+      margin-bottom:12px; padding:6px 0;
+    }
+    tr.group{margin:22px 0 10px;}
+    tr.group td{border:1px solid var(--line); border-radius:8px;}
+    td{border-bottom:none; padding:7px 16px;}
+    td.no{width:auto; padding-bottom:0; font-size:.78rem;}
+    td.feat{width:auto; padding-top:0;}
+    td[data-label]::before{
+      content:attr(data-label); display:block; font-size:.66rem; font-weight:600;
+      letter-spacing:.08em; text-transform:uppercase; color:var(--silver); margin-bottom:2px;
+    }
+    td.chk{width:auto;}
+    .hero{margin-bottom:48px;}
+    section{margin-bottom:56px;}
+    .flow{grid-template-columns:1fr;}
+    .flow-step{border-right:none;}
+    .flow-step:last-child{border-bottom:none;}
+    .internal{padding:20px 18px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    nav.side, nav.side.open{transition:none;}
+  }
+  @media print{
+    nav.side, .mbar, .scrim, #internal, .filters{display:none !important;}
+    .shell{display:block;}
+    main{padding:0;}
+    section{break-inside:avoid-page;}
+  }
+</style>
+</head>
+<body>
+
+<header class="mbar">
+  <button class="menu-btn" id="menuBtn" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="side">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="brand"><span class="brand-mark" aria-hidden="true"></span><div class="brand-name">Loque</div></div>
+  <button class="theme-btn" data-theme-btn type="button">Mode gelap</button>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="Navigasi halaman">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div class="brand-name">Loque<small>Fitur Customer</small></div>
+    </div>
+
+    <div class="nav-group">
+      <h4>Ringkasan</h4>
+      <a href="#flow" data-spy="flow"><span class="dot"></span>Alur booking</a>
+      <a href="#benefits" data-spy="benefits"><span class="dot"></span>Untuk toko &amp; barber</a>
+      <a href="#rules" data-spy="rules"><span class="dot"></span>Aturan booking</a>
+    </div>
+
+    <div class="nav-group" id="stageNav">
+      <h4>Fitur</h4>
+      <a href="#features" data-spy="features"><span class="dot"></span>Semua fitur</a>
+    </div>
+
+    <div class="nav-group">
+      <h4>Tim</h4>
+      <a href="#internal" id="intLink" data-spy="internal"><span class="dot"></span>Internal<span class="n" id="intState">tersembunyi</span></a>
+    </div>
+
+    <div class="side-foot">
+      <span class="ver" id="ver"></span>
+      <button class="theme-btn" data-theme-btn type="button">Mode gelap</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="content">
+
+      <div class="hero">
+        <div class="eyebrow">Loque · Sisi customer</div>
+        <h1>Booking barber yang rapi, dari cari sampai ulasan.</h1>
+        <p class="lead">Loque menghubungkan pelanggan dengan barber dan memberi barber tempat memamerkan portofolionya. Halaman ini memuat fitur MVP untuk customer. Sedang dipilot di satu toko.</p>
+        <p class="meta" id="meta"></p>
+        <noscript><p>Halaman ini membutuhkan JavaScript untuk menampilkan data.</p></noscript>
+      </div>
+
+      <section id="flow">
+        <h2>Alur booking</h2>
+        <p class="sub">Lima langkah dari mencari sampai mengulas.</p>
+        <div class="flow" id="flowGrid"></div>
+      </section>
+
+      <section id="benefits">
+        <h2>Untuk toko dan barber</h2>
+        <p class="sub">Yang berubah di sisi toko.</p>
+        <div class="cards" id="benefitGrid"></div>
+      </section>
+
+      <section id="rules">
+        <h2>Aturan booking</h2>
+        <p class="sub">Aturan yang berlaku untuk setiap booking.</p>
+        <div class="cards" id="rulesGrid"></div>
+      </section>
+
+      <section id="features">
+        <h2>Daftar fitur</h2>
+        <p class="sub">Per tahap perjalanan customer.</p>
+        <div class="filters">
+          <input class="search" id="q" type="search" placeholder="Cari fitur" aria-label="Cari fitur">
+          <div class="chips" id="stageChips" role="group" aria-label="Filter menurut tahap"></div>
+        </div>
+        <p class="count-line" id="countLine"></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>No</th><th>Fitur</th><th>Fungsi</th></tr></thead>
+            <tbody id="featBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="internal" class="internal">
+        <div class="int-head">
+          <div>
+            <span class="pill">Internal</span>
+            <h2>Khusus tim</h2>
+            <p class="sub">Catatan teknis, keputusan, rencana, dan changelog. Sembunyikan saat presentasi.</p>
+          </div>
+          <button class="int-btn" id="intBtn" type="button" aria-expanded="false" aria-controls="intBody">Tampilkan</button>
+        </div>
+
+        <div class="int-body" id="intBody" hidden>
+          <h3 class="sub-h">Catatan fitur</h3>
+          <p class="sub-p">Detail teknis, poin terbuka, dan item ditunda per fitur, plus fitur yang tidak dilihat customer.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>No</th><th>Fitur</th><th>Catatan</th></tr></thead>
+            <tbody id="noteBody"></tbody>
+          </table></div>
+
+          <h3 class="sub-h">Keputusan internal</h3>
+          <div class="cards" id="intRulesGrid"></div>
+
+          <h3 class="sub-h">Status booking</h3>
+          <p class="sub-p">Label kerja. Samakan dengan enum final. Status refund adalah field terpisah.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Status</th><th>Diatur oleh</th><th>Dilihat customer</th><th>Catatan</th></tr></thead>
+            <tbody id="statusBody"></tbody>
+          </table></div>
+
+          <h3 class="sub-h">Ditunda &amp; TBD</h3>
+          <div class="parked-grid" id="parkedGrid"></div>
+
+          <h3 class="sub-h">Pilot: baseline</h3>
+          <div class="timeline">
+            <div class="tl"><b>2 minggu</b><span>Baseline sebelum rilis</span></div>
+            <div class="tl"><b>8 minggu</b><span>Pilot satu toko</span></div>
+            <div class="tl"><b>Minggu ke-4</b><span>Checkpoint</span></div>
+            <div class="tl"><b>Minggu ke-8</b><span>Go / no-go toko ke-2</span></div>
+          </div>
+          <div class="table-wrap" style="margin-top:14px"><table>
+            <thead><tr><th>Selesai</th><th>Yang dikonfirmasi</th><th>Alasan</th><th>Cara dapat</th></tr></thead>
+            <tbody id="baseBody"></tbody>
+          </table></div>
+          <p class="foot-note">Waktu terbatas? Kerjakan #1, #4, #5, #7, #11. Kolom tally: tanggal, jam, cara booking, baru/repeat, barber, layanan, cara bayar, hadir/tidak.</p>
+
+          <h3 class="sub-h">Pilot: metrik</h3>
+          <p class="sub-p">Ambang adalah placeholder. Ganti setelah baseline terkumpul.</p>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Metrik</th><th>Menguji</th><th>Aturan sementara</th></tr></thead>
+            <tbody id="metricBody"></tbody>
+          </table></div>
+
+          <h3 class="sub-h">Changelog</h3>
+          <ul class="log" id="logList"></ul>
+
+          <p class="edit-note">Untuk mengubah isi, edit blok data di bagian bawah file ini. Fitur baru: tambahkan satu objek ke <code>FEATURES</code>. Tandai <code>internal: true</code> agar tidak tampil di daftar publik.</p>
+        </div>
+      </section>
+
+      <footer id="foot"></footer>
+    </div>
+  </main>
+</div>
+
+<script>
+/* =====================================================================
+   DATA — edit di sini.
+
+   FEATURES: { no, stage, name, desc, tags?, tech?, open?, parked?, internal? }
+     desc     : teks publik, singkat, tanpa istilah teknis.
+     tech     : catatan teknis (hanya di bagian Internal).
+     open     : pertanyaan belum diputuskan (Internal).
+     parked   : hal yang sengaja ditunda (Internal).
+     tags     : "changed" | "new"   (Internal).
+     internal : true = tidak tampil di daftar publik.
+     Gunakan {{kode}} untuk teks kode inline.
+   ===================================================================== */
+
+const META = { version: "0.3", updated: "21 Okt 2026, 03:17 WIB" };
+
+const FLOW = [
+  ["Cari", "Lihat barber, portofolio, dan harga tanpa login."],
+  ["Pilih", "Layanan, barber, lalu jam."],
+  ["Bayar fee", "Booking fee dibayar online lewat DOKU."],
+  ["Datang", "Sisa harga dibayar di toko."],
+  ["Ulas", "Beri rating dan ulasan untuk barber."]
+];
+
+const BENEFITS = [
+  { h: "Dana langsung ke toko", p: "Booking fee masuk ke akun merchant DOKU milik toko." },
+  { h: "Portofolio barber", p: "Tiap barber punya profil, galeri, dan tautan sendiri untuk bio Instagram atau TikTok." },
+  { h: "Jadwal rapi", p: "Hanya jam yang muat dengan durasi layanan yang bisa dipilih. Slot ditahan selama pembayaran." },
+  { h: "Admin tetap memegang kendali", p: "Reschedule, penyelesaian booking, dan penandaan no-show dilakukan admin toko." }
+];
+
+const RULES = [
+  { h: "Login", p: "Dengan Google. Browsing tanpa login." },
+  { h: "Booking fee", p: "Rp 10.000 secara default, diatur per toko. Dibayar online lewat DOKU." },
+  { h: "Slot ditahan", p: "15 menit untuk menyelesaikan pembayaran. Satu pembayaran tertunda per akun." },
+  { h: "Sisa pembayaran", p: "Harga layanan dibayar di toko." },
+  { h: "Customer membatalkan", p: "Booking fee tidak dikembalikan." },
+  { h: "Customer tidak hadir", p: "Ditandai no-show oleh admin 15 menit setelah jam mulai. Booking fee tidak dikembalikan." },
+  { h: "Toko membatalkan", p: "Customer mendapat refund booking fee." },
+  { h: "Reschedule", p: "Lewat admin toko. Tombol WhatsApp ada di detail booking." },
+  { h: "Selesai", p: "Admin menandai booking selesai saat customer membayar di toko. Setelah itu ulasan terbuka." },
+  { h: "Jam booking", p: "Slot 1 jam, 09.00 sampai 21.00." }
+];
+
+const INTERNAL_RULES = [
+  { h: "Model bisnis", p: "Loque ambil 20% dari booking fee, ditagih lewat invoice bulanan per toko. Loque tidak memegang dana." },
+  { h: "Merchant", p: "Tiap toko punya merchant DOKU sendiri. Loque membantu setup." },
+  { h: "Fungsi deposit", p: "Rp 10.000 tidak dimaksudkan mencegah no-show. Fungsinya kompensasi kecil untuk waktu barber." },
+  { h: "Refund pilot", p: "Refund atas pembatalan toko diproses manual di luar sistem." },
+  { h: "Pilot", p: "Satu toko, 2 bulan. Baseline 2 minggu sebelum rilis." },
+  { h: "Cakupan ulasan", p: "Semua fitur ulasan customer (#33 sampai #38) masuk MVP." }
+];
+
+const STATUSES = [
+  { s: "Unpaid", by: "Sistem, saat booking dimulai", sees: `"Menunggu pembayaran"`, n: "Slot ditahan 15 menit." },
+  { s: "Expired", by: "Sistem", sees: "Tidak tampil sebagai mendatang", n: "Hold habis, slot dilepas." },
+  { s: "Confirmed", by: "Sistem, setelah DOKU konfirmasi", sees: "Booking mendatang", n: "Nominal fee disimpan di booking." },
+  { s: "Completed", by: "Admin (kasir)", sees: "Tab Selesai, ulasan terbuka", n: "Saat customer bayar di toko." },
+  { s: "Cancelled by customer", by: "Customer", sees: "Tab Dibatalkan", n: "Fee hangus, slot dilepas." },
+  { s: "Cancelled by shop", by: "Admin", sees: `"Dibatalkan oleh toko" + status refund`, n: "Slot dilepas. Refund manual di pilot." },
+  { s: "No-show", by: "Admin, setelah jam mulai + 15 menit", sees: `"Tidak hadir"`, n: "Fee ditahan. Bisa di-undo." }
+];
+
+const FEATURES = [
+  { no: 1, stage: "1. Masuk", name: "Login dengan Google", tags: ["changed"],
+    desc: `Masuk dengan satu tombol Google. Login baru diminta saat mulai booking.`,
+    tech: `Browser in-app (Instagram, TikTok) menampilkan tombol "Buka di browser" lebih dulu, karena Google memblokir login di sana. Barber dan parameter dibawa lewat URL dan OAuth {{state}}.` },
+  { no: 2, stage: "1. Masuk", name: "Profil pertama kali", desc: `Konfirmasi nama dan isi nomor WhatsApp.` },
+
+  { no: 3, stage: "2. Beranda", name: "Banner utama", desc: `Foto toko dengan tombol "Booking Baru".` },
+  { no: 4, stage: "2. Beranda", name: "Kartu booking mendatang", tags: ["changed"], desc: `Janji berikutnya beserta statusnya dan "Bayar di toko: Rp X".` },
+  { no: 5, stage: "2. Beranda", name: "Riwayat + Quick Rebook", desc: `Riwayat booking dengan "Pesan Lagi" yang mengisi ulang layanan, barber, dan data tamu.` },
+  { no: 6, stage: "2. Beranda", name: "Info toko ringkas", desc: `Jam buka hari ini (WIB), status buka atau tutup, alamat, dan Maps.` },
+  { no: 51, stage: "2. Beranda", name: "Beranda sebelum login", tags: ["new"],
+    desc: `Banner, info toko, dan daftar barber bisa dilihat tanpa login.`,
+    tech: `Tanpa kartu booking dan riwayat. Aksi booking diarahkan ke login.` },
+
+  { no: 7, stage: "3. Cari barber & toko", name: "Daftar barber", tags: ["changed"], desc: `Cari barber, filter spesialisasi, lihat foto dan rating. Tanpa login.` },
+  { no: 8, stage: "3. Cari barber & toko", name: "Profil barber", tags: ["changed"], desc: `Bio, spesialisasi, harga, galeri portofolio, dan ulasan. Tanpa login.` },
+  { no: 9, stage: "3. Cari barber & toko", name: "Booking dari profil", tags: ["changed"], desc: `Tombol "Booking dengan [Nama]" memulai booking dengan barber terpilih.` },
+  { no: 10, stage: "3. Cari barber & toko", name: "Info Toko", tags: ["changed"], desc: `Foto, alamat dan Maps, jam buka, WhatsApp, Instagram, TikTok, galeri. Tanpa login.` },
+  { no: 47, stage: "3. Cari barber & toko", name: "Tautan barber", tags: ["new"],
+    desc: `Tiap barber punya tautan sendiri untuk dibagikan di Instagram atau TikTok.`,
+    tech: `Contoh {{/b/<slug>?ref=ig}}. Barber, pilihan awal, dan sumber dibawa lewat URL dan login Google, jadi perpindahan lewat "Buka di browser" tidak memutus alur. Barber dicari di server dari slug; harga dan layanan tidak diambil dari URL. Barber yang diganti nama atau nonaktif di-redirect atau diberi halaman cadangan.`,
+    open: `Pengelolaan tautan di sisi admin dan barber. Dirancang berikutnya.` },
+
+  { no: 11, stage: "4. Booking flow", name: "Jalan masuk booking", desc: `Mulai dari "Booking Baru", "Pesan Lagi", atau profil barber.` },
+  { no: 12, stage: "4. Booking flow", name: "Langkah 1: Data Tamu", tags: ["changed"],
+    desc: `Isi data sendiri atau pesan untuk orang lain, dan pilih layanan untuk Pria atau Wanita.`,
+    tech: `Pilihan gender menentukan layanan dan barber yang tampil.`,
+    open: `Lewati langkah ini jika toko hanya melayani satu gender. Belum dikonfirmasi.` },
+  { no: 13, stage: "4. Booking flow", name: "Langkah 2: Layanan", tags: ["changed"],
+    desc: `Pilih beberapa layanan dan add-on, lengkap dengan rentang harga.`,
+    tech: `Pilihan eksklusif "Haircut or Long Trim". Hanya layanan sesuai gender yang tampil.` },
+  { no: 14, stage: "4. Booking flow", name: "Harga per barber", desc: `Harga dan durasi mengikuti barber yang dipilih.` },
+  { no: 15, stage: "4. Booking flow", name: `Harga "Mulai dari"`, desc: `Layanan coloring menampilkan harga awal dan total estimasi.` },
+  { no: 16, stage: "4. Booking flow", name: "Langkah 3: Barber", tags: ["changed"],
+    desc: `Pilih barber. Total harga per barber ditampilkan, dengan badge "Paling hemat" dan "Best Rated".`,
+    tech: `Tanpa opsi "any barber". Barber yang tidak bisa menangani gender terpilih disembunyikan. Ada preview profil.`,
+    open: `"Best Rated" butuh jumlah ulasan minimum. Belum dikonfirmasi.` },
+  { no: 17, stage: "4. Booking flow", name: "Jam terdekat di kartu barber", desc: `Kartu barber menunjukkan jam kosong terdekat, mis. "Tersedia hari ini 14.00".` },
+  { no: 18, stage: "4. Booking flow", name: "Langkah 4: Jadwal", desc: `Kalender bulanan 45 hari ke depan dengan jumlah tanggal tersedia.` },
+  { no: 19, stage: "4. Booking flow", name: "Slot waktu", tags: ["changed"],
+    desc: `Pilih jam mulai, 09.00 sampai 21.00. Hanya jam yang muat dengan durasi layanan yang bisa dipilih.`,
+    tech: `Pilot: slot tetap 1 jam. Jam yang penuh tampil "Tidak tersedia" tanpa alasan.`,
+    parked: `Kelipatan 30 menit atau 1 jam per toko atau per barber, tanpa jendela waktu yang tidak selaras.` },
+  { no: 20, stage: "4. Booking flow", name: "Langkah 5: Ringkasan & Bayar", tags: ["changed"],
+    desc: `Rincian layanan, booking fee, dan sisa yang dibayar di toko. Kebijakan batal, no-show, dan reschedule tampil sebelum bayar.` },
+
+  { no: 21, stage: "5. Pembayaran", name: "Booking fee", tags: ["changed"],
+    desc: `Rp 10.000 secara default, diatur per toko. Dibayar online, terpisah dari harga layanan.`,
+    tech: `Nominal dibaca dari pengaturan dan disimpan per booking. Dana masuk ke merchant DOKU toko; Loque tidak memegang dana.` },
+  { no: 22, stage: "5. Pembayaran", name: "Pembayaran DOKU", tags: ["changed"],
+    desc: `Bayar lewat halaman checkout DOKU, termasuk QRIS yang bisa diunduh. Slot ditahan 15 menit.`,
+    tech: `Sesi pembayaran kedaluwarsa 15 menit, sama dengan hold slot. Satu unpaid hold per user; booking kedua menawarkan "Lanjutkan pembayaran" atau "Batalkan dan buat baru" (batal melepas slot tanpa fee). Perubahan fee tidak mengubah pembayaran yang sedang terbuka.`,
+    open: `Tandai pembayaran yang masuk setelah expired untuk admin. Owner setuju manual selama pilot; belum dikonfirmasi.` },
+  { no: 23, stage: "5. Pembayaran", name: "Layar sukses", desc: `Kode booking, ringkasan, dan sisa yang dibayar di toko.` },
+
+  { no: 24, stage: "6. Setelah booking", name: "Notifikasi", tags: ["changed"],
+    desc: `Daftar notifikasi dalam aplikasi dengan penanda belum dibaca.`,
+    parked: `Reminder dan push notification.` },
+  { no: 25, stage: "6. Setelah booking", name: "Tautan notifikasi", desc: `Ketuk notifikasi untuk membuka booking atau ulasan. Lonceng menunjukkan jumlah yang baru.` },
+  { no: 26, stage: "6. Setelah booking", name: "Tab booking", desc: `Booking dikelompokkan Mendatang, Selesai, dan Dibatalkan.`,
+    open: `No-show muncul di tab Dibatalkan dengan label "Tidak hadir". Belum dikonfirmasi.` },
+  { no: 27, stage: "6. Setelah booking", name: "Detail booking", tags: ["changed"],
+    desc: `Jadwal, barber, layanan, rincian pembayaran, info toko, dan tombol WhatsApp ke admin toko.`,
+    tech: `Tanpa reschedule mandiri. Pesan WhatsApp terisi kode booking dan jadwal.` },
+  { no: 28, stage: "6. Setelah booking", name: "Google Calendar", desc: `Tambahkan janji ke Google Calendar dengan satu tombol.` },
+  { no: 29, stage: "6. Setelah booking", name: "Detail Transaksi", desc: `Status, referensi, metode, nominal, dan waktu pembayaran.` },
+  { no: 30, stage: "6. Setelah booking", name: "Bukti Pembayaran", desc: `Unduh bukti pembayaran booking fee sebagai gambar PNG.` },
+  { no: 31, stage: "6. Setelah booking", name: "Lanjutkan pembayaran", tags: ["changed"], desc: `Selesaikan pembayaran yang tertunda selama slot masih ditahan.` },
+  { no: 32, stage: "6. Setelah booking", name: "Batalkan booking", tags: ["changed"], desc: `Customer bisa membatalkan sendiri. Peringatan tampil bahwa booking fee tidak dikembalikan.` },
+  { no: 48, stage: "6. Setelah booking", name: "Dibatalkan oleh toko", tags: ["new"],
+    desc: `Jika toko membatalkan, customer melihat "Dibatalkan oleh toko" beserta status refund.`,
+    tech: `Status booking "cancelled by shop". Status refund adalah field terpisah ("Refund diproses", "Refund selesai"). Slot dilepas dan notifikasi dikirim. Refund pilot manual di luar sistem.`,
+    open: `Alur refund jangka panjang, setelah tiap toko punya merchant DOKU sendiri.` },
+  { no: 49, stage: "6. Setelah booking", name: "Jadwal diubah admin", tags: ["new"], desc: `Jika admin memindahkan booking, customer diberi tahu.` },
+  { no: 52, stage: "6. Setelah booking", name: "Tidak hadir", tags: ["new"],
+    desc: `Booking yang tidak didatangi ditandai "Tidak hadir" oleh admin. Booking fee tidak dikembalikan.`,
+    tech: `Hanya admin, setelah jam mulai + grace 15 menit. Bisa di-undo. Tanpa ajakan ulasan.` },
+
+  { no: 33, stage: "7. Setelah kunjungan", name: "Ulas barber", tags: ["changed"],
+    desc: `Beri 1 sampai 5 bintang dan komentar (maks. 300 karakter) setelah booking selesai.`,
+    tech: `Terbuka saat admin menandai booking selesai. Tidak ditawarkan untuk booking dibatalkan atau no-show.` },
+  { no: 34, stage: "7. Setelah kunjungan", name: "Dampak ulasan", desc: `Rating dan ulasan langsung tampil di profil barber.` },
+  { no: 35, stage: "7. Setelah kunjungan", name: "Ulasan Google Maps", desc: `Tombol untuk mengulas barbershop di Google Maps.` },
+  { no: 36, stage: "7. Setelah kunjungan", name: "Ulasan Saya", desc: `Semua ulasan yang pernah ditulis customer dalam satu halaman.` },
+  { no: 37, stage: "7. Setelah kunjungan", name: "Edit ulasan", desc: `Ubah bintang dan komentar. Ulasan ditandai "Diedit" dan rating barber ikut diperbarui.` },
+  { no: 38, stage: "7. Setelah kunjungan", name: "Hapus ulasan", desc: `Hapus ulasan. Rating dan jumlah ulasan barber dihitung ulang.` },
+
+  { no: 39, stage: "8. Akun & privasi", name: "Profil", desc: `Nama, email, dan nomor telepon yang bisa diubah.` },
+  { no: 40, stage: "8. Akun & privasi", name: "Bantuan (FAQ)", tags: ["changed"], desc: `Pertanyaan umum dan kontak WhatsApp, termasuk aturan fee dan pembatalan.` },
+  { no: 41, stage: "8. Akun & privasi", name: "Syarat & Ketentuan", tags: ["changed"], desc: `Aturan layanan, termasuk no-show dan pembatalan.` },
+  { no: 42, stage: "8. Akun & privasi", name: "Privasi & UU PDP", tags: ["changed"],
+    desc: `Data yang dikumpulkan, penerimanya, lama penyimpanan, dan hak customer.`,
+    tech: `Mencakup event analytics.` },
+  { no: 43, stage: "8. Akun & privasi", name: "Hapus Akun & Data", desc: `Hapus akun dan data pribadi. Ditolak selama masih ada booking mendatang.` },
+  { no: 44, stage: "8. Akun & privasi", name: "Akses dan logout", tags: ["changed"],
+    desc: `Keluar dari akun dengan konfirmasi.`,
+    tech: `Auth guard hanya untuk layar booking, pembayaran, dan akun. Browsing tetap terbuka.` },
+
+  { no: 46, stage: "9. Pendukung", name: "Halaman 404", desc: `Halaman tidak ditemukan, dengan jalan kembali ke beranda.` },
+
+  { no: 45, stage: "9. Pendukung", name: "Halaman design system", internal: true, desc: `Galeri komponen untuk developer.` },
+  { no: 50, stage: "9. Pendukung", name: "Funnel tracking", tags: ["new"], internal: true,
+    desc: `Mencatat langkah customer: profil dilihat, booking ditekan, login, layanan, slot, pembayaran dibuka, dibayar, ditinggalkan, beserta sumber {{ref}}. ID pseudonim, dicantumkan di halaman privasi.` }
+];
+
+const PARKED = [
+  { h: "Monetisasi", items: [
+    "Riset monetisasi lebih lanjut. 20% menutup pengeluaran saat ini; tinjau di toko ke-2.",
+    "Tanya DOKU soal split atau sub-account settlement.",
+    "Alur refund jangka panjang setelah tiap toko punya merchant DOKU."
+  ]},
+  { h: "Konversi", items: [
+    "Ukur drop-off di langkah pembayaran; putuskan apakah deposit sepadan.",
+    "Deposit dibebaskan untuk customer repeat yang terpercaya.",
+    "Pantau apakah satu unpaid hold menyulitkan \"Untuk orang lain\"."
+  ]},
+  { h: "Retensi", items: [
+    "Rebooking nudge, mis. \"waktunya potong\" setelah 3 sampai 4 minggu.",
+    "Reminder dan push notification.",
+    "Membership atau loyalty."
+  ]},
+  { h: "Penjadwalan", items: [
+    "Durasi slot per toko atau barber, kelipatan 30 menit atau 1 jam.",
+    "Aturan reschedule mandiri, mis. satu kali gratis, 24 jam sebelumnya."
+  ]},
+  { h: "Berikutnya: admin & barber", items: [
+    "Pengelolaan tautan barber.",
+    "Set dan undo no-show, reschedule, refund, walk-in, menandai selesai."
+  ]},
+  { h: "Keputusan pilot", items: [
+    "Syarat mengambil toko ke-2.",
+    "Angka keberhasilan, setelah baseline terkumpul."
+  ]}
+];
+
+const BASELINE = [
+  ["Customer per minggu (total; hari kerja vs akhir pekan)", "Dasar semua klaim pertumbuhan", "Hitung 4 minggu terakhir dari buku kasir, POS, atau chat WhatsApp."],
+  ["Barber aktif, jam kerja, customer per barber per hari", "Apakah slot 1 jam cocok dengan kapasitas", "Tanya owner, lalu amati satu hari ramai dan satu hari sepi."],
+  ["Jam ramai vs jam kosong", "Booking mengisi celah atau hanya menambah beban di jam ramai", "Amati atau tally 2 minggu; tanya barber."],
+  ["Cara customer datang: walk-in, WhatsApp, DM Instagram, telepon", "Seberapa banyak yang bisa pindah ke Loque", "Tally di kasir 2 minggu, atau hitung chat WhatsApp."],
+  ["Tingkat no-show (janji vs tidak datang dalam 15 menit)", "Ujian utama deposit", "Hitung dari 4 sampai 8 minggu chat WhatsApp, dengan aturan 15 menit yang sama."],
+  ["Biaya satu no-show (rata-rata tiket × seberapa sering jam itu terisi walk-in)", "Apakah Rp 10.000 sepadan", "Tanya owner, cocokkan dengan tingkat no-show."],
+  ["Customer repeat vs baru; yang minta barber tertentu", "Menguji Quick Rebook dan visibilitas barber", "Tanya barber dan owner, cek dengan buku kasir."],
+  ["Sumber customer baru (Instagram, Maps, teman)", "Pembanding untuk data ref", "Tally di kasir 2 minggu (\"Tahu dari mana?\")."],
+  ["Rata-rata tiket dan layanan umum", "Porsi Rp 10.000 terhadap tiket", "Hitung dari daftar harga dan catatan kasir."],
+  ["Cash vs QRIS; iPhone vs Android", "Kesiapan deposit dan risiko PWA di iOS", "Tanya owner; tally HP customer seminggu."],
+  ["Waktu admin untuk booking per hari", "Baseline untuk \"Loque menghemat waktu admin\"", "Catat satu hari normal; tanya admin."],
+  ["Apakah semua transaksi dicatat", "Menentukan keandalan status completed dan no-show", "Cek buku kasir sebulan terakhir."],
+  ["Harga yang mau dibayar owner (komisi vs langganan)", "Pembanding uji kesediaan bayar di minggu ke-8", "Tanya langsung, catat jawaban dan tanggalnya."],
+  ["Syarat mengambil toko ke-2", "Aturan go/no-go", "Keputusan Anda."]
+];
+
+const METRICS = [
+  ["Konversi pembayaran (dibuka → dibayar)", "Deposit dan DOKU checkout berfungsi", "Di bawah ±60%: periksa deposit dan UX checkout."],
+  ["No-show rate vs baseline toko", "Booking membantu barber", "Tidak turun: deposit tidak bekerja."],
+  ["Booking dari customer baru dan tautan ref", "Loque membawa visibilitas", "Mendekati nol: Loque sebatas alat booking."],
+  ["Booking ditandai selesai atau no-show di hari yang sama", "Ketergantungan pada kasir terjaga", "Di bawah ±95%: status dan ulasan tak bisa dipercaya."],
+  ["Kesediaan owner membayar (minggu ke-8)", "Ada bisnisnya", "Ya atau tidak, plus harga."]
+];
+
+const CHANGELOG = [
+  { v: "0.3", d: "21 Okt 2026", time: "03:17 WIB", t: "Versi presentasi", items: [
+    "Semua fitur ulasan customer (#33 sampai #38) masuk MVP; status \"belum diputuskan\" dihapus.",
+    "Teks diringkas untuk pemilik toko dan calon mitra.",
+    "Konten internal dipindah ke satu bagian yang bisa disembunyikan.",
+    "Changelog memakai jam (WIB)."
+  ]},
+  { v: "0.2", d: "21 Okt 2026", time: "03:02 WIB", t: "Tampilan dan bahasa", items: [
+    "Tema default terang.",
+    "Navigasi pindah ke sidebar, dengan drawer di layar kecil.",
+    "Seluruh teks Bahasa Indonesia; istilah teknis tetap Inggris."
+  ]},
+  { v: "0.1", d: "21 Okt 2026", time: "02:53 WIB", t: "Versi pertama", items: [
+    "46 fitur awal ditulis ulang dengan keputusan pilot.",
+    "Baris baru #47 sampai #52: tautan barber, dibatalkan toko, jadwal diubah admin, funnel tracking, beranda sebelum login, tidak hadir.",
+    "Menambah keputusan, status booking, daftar ditunda, baseline dan metrik pilot."
+  ]}
+];
+
+/* ===================================================================== */
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmt = (s) => esc(s).replace(/\{\{(.+?)\}\}/g, "<code>$1</code>");
+const TAG_LABEL = { new: "Baru", changed: "Diubah", open: "Terbuka", parked: "Ditunda", internal: "Internal saja" };
+
+const PUBLIC = FEATURES.filter(f => !f.internal);
+
+/* ---------- ringkasan ---------- */
+function renderPublic(){
+  $("meta").textContent = `Versi ${META.version} · diperbarui ${META.updated}`;
+  $("ver").textContent = `v${META.version}`;
+  $("foot").textContent = `Loque · versi ${META.version} · ${META.updated}`;
+
+  $("flowGrid").innerHTML = FLOW.map((s,i) =>
+    `<div class="flow-step"><span class="fn">${i+1}</span><h3>${esc(s[0])}</h3><p>${esc(s[1])}</p></div>`).join("");
+  $("benefitGrid").innerHTML = BENEFITS.map(b => `<div class="card"><h3>${esc(b.h)}</h3><p>${esc(b.p)}</p></div>`).join("");
+  $("rulesGrid").innerHTML = RULES.map(r => `<div class="card"><h3>${esc(r.h)}</h3><p>${esc(r.p)}</p></div>`).join("");
+}
+
+/* ---------- fitur publik ---------- */
+const state = { stage: "all", q: "" };
+const stages = [...new Set(PUBLIC.map(f => f.stage))].sort((a,b) => parseInt(a) - parseInt(b));
+const stageId = (s) => "stage-" + parseInt(s);
+const stageLabel = (s) => s.replace(/^\d+\.\s*/, "");
+
+function chip(key, label){
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = label; b.dataset.key = key;
+  b.setAttribute("aria-pressed", String(state.stage === key));
+  b.addEventListener("click", () => { state.stage = key; syncChips(); renderFeatures(); });
+  return b;
+}
+function syncChips(){
+  document.querySelectorAll("#stageChips .chip").forEach(b => b.setAttribute("aria-pressed", String(state.stage === b.dataset.key)));
+}
+function buildChips(){
+  $("stageChips").append(chip("all","Semua"));
+  stages.forEach(s => $("stageChips").append(chip(s, stageLabel(s))));
+  $("q").addEventListener("input", (e) => { state.q = e.target.value.trim().toLowerCase(); renderFeatures(); });
+}
+function matches(f){
+  if (state.stage !== "all" && f.stage !== state.stage) return false;
+  if (state.q){
+    const hay = (f.no + " " + f.name + " " + f.desc + " " + f.stage).toLowerCase();
+    if (!hay.includes(state.q)) return false;
+  }
+  return true;
+}
+function renderFeatures(){
+  const list = PUBLIC.filter(matches);
+  $("countLine").textContent = `${list.length} dari ${PUBLIC.length} fitur`;
+  if (!list.length){ $("featBody").innerHTML = `<tr><td colspan="3" class="empty">Tidak ada fitur yang cocok.</td></tr>`; return; }
+  let html = "";
+  stages.forEach(s => {
+    const rows = list.filter(f => f.stage === s).sort((a,b) => a.no - b.no);
+    if (!rows.length) return;
+    html += `<tr class="group" id="${stageId(s)}"><td colspan="3">${esc(s)}<span>${rows.length} fitur</span></td></tr>`;
+    rows.forEach(f => {
+      html += `<tr class="row"><td class="no">${f.no}</td><td class="feat" data-label="Fitur">${fmt(f.name)}</td><td data-label="Fungsi">${fmt(f.desc)}</td></tr>`;
+    });
+  });
+  $("featBody").innerHTML = html;
+}
+
+/* ---------- internal ---------- */
+function renderInternal(){
+  // catatan per fitur
+  const rows = FEATURES.filter(f => f.internal || f.tech || f.open || f.parked || (f.tags||[]).length).sort((a,b) => a.no - b.no);
+  $("noteBody").innerHTML = rows.map(f => {
+    const tg = [...(f.tags||[])];
+    if (f.internal) tg.unshift("internal");
+    if (f.open) tg.push("open");
+    if (f.parked) tg.push("parked");
+    const pills = tg.length ? `<div class="tags">${tg.map(t => `<span class="tag ${t}">${TAG_LABEL[t]}</span>`).join("")}</div>` : "";
+    const notes =
+      (f.internal ? `<p class="note">${fmt(f.desc)}</p>` : "") +
+      (f.tech ? `<p class="note">${fmt(f.tech)}</p>` : "") +
+      (f.open ? `<p class="note"><b>Terbuka:</b> ${fmt(f.open)}</p>` : "") +
+      (f.parked ? `<p class="note"><b>Ditunda:</b> ${fmt(f.parked)}</p>` : "");
+    return `<tr class="row"><td class="no">${f.no}</td><td class="feat" data-label="Fitur">${fmt(f.name)}</td><td data-label="Catatan">${pills}${notes || `<p class="note">Fitur ini berubah dari versi pertama.</p>`}</td></tr>`;
+  }).join("");
+
+  $("intRulesGrid").innerHTML = INTERNAL_RULES.map(r => `<div class="card"><h3>${esc(r.h)}</h3><p>${esc(r.p)}</p></div>`).join("");
+
+  $("statusBody").innerHTML = STATUSES.map(s =>
+    `<tr class="srow"><td data-label="Status"><b>${esc(s.s)}</b></td><td data-label="Diatur oleh">${esc(s.by)}</td><td data-label="Dilihat customer">${esc(s.sees)}</td><td data-label="Catatan">${esc(s.n)}</td></tr>`).join("");
+
+  $("parkedGrid").innerHTML = PARKED.map(g =>
+    `<div class="pcard"><h3>${esc(g.h)}</h3><ul>${g.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`).join("");
+
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("loque-baseline") || "{}"); } catch(e){}
+  $("baseBody").innerHTML = BASELINE.map((r,i) =>
+    `<tr class="brow"><td class="chk" data-label="Selesai"><input type="checkbox" data-i="${i}" aria-label="Sudah terkumpul: ${esc(r[0])}" ${saved[i] ? "checked" : ""}></td>` +
+    `<td data-label="Yang dikonfirmasi"><b>${i+1}.</b> ${esc(r[0])}</td><td data-label="Alasan">${esc(r[1])}</td><td data-label="Cara dapat">${esc(r[2])}</td></tr>`).join("");
+  $("baseBody").addEventListener("change", (e) => {
+    const el = e.target; if (!el.matches("input[type=checkbox]")) return;
+    saved[el.dataset.i] = el.checked;
+    try { localStorage.setItem("loque-baseline", JSON.stringify(saved)); } catch(err){}
+  });
+
+  $("metricBody").innerHTML = METRICS.map(m =>
+    `<tr class="brow"><td data-label="Metrik"><b>${esc(m[0])}</b></td><td data-label="Menguji">${esc(m[1])}</td><td data-label="Aturan sementara">${esc(m[2])}</td></tr>`).join("");
+
+  $("logList").innerHTML = CHANGELOG.map(c =>
+    `<li><b>v${esc(c.v)} · ${esc(c.t)}</b><span class="d">${esc(c.d)} · ${esc(c.time)}</span><ul>${c.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></li>`).join("");
+}
+
+const intBtn = $("intBtn"), intBody = $("intBody");
+function setInternal(open, scroll){
+  intBody.hidden = !open;
+  intBtn.textContent = open ? "Sembunyikan" : "Tampilkan";
+  intBtn.setAttribute("aria-expanded", String(open));
+  $("intState").textContent = open ? "terbuka" : "tersembunyi";
+  if (open && scroll) $("internal").scrollIntoView();
+}
+intBtn.addEventListener("click", () => setInternal(intBody.hidden));
+$("intLink").addEventListener("click", (e) => { e.preventDefault(); setInternal(true, true); closeDrawer(); });
+
+/* ---------- sidebar ---------- */
+function buildStageNav(){
+  const nav = $("stageNav");
+  stages.forEach(s => {
+    const n = PUBLIC.filter(f => f.stage === s).length;
+    const a = document.createElement("a");
+    a.href = "#" + stageId(s);
+    a.innerHTML = `<span class="dot"></span>${esc(stageLabel(s))}<span class="n">${n}</span>`;
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      state.stage = "all"; state.q = ""; $("q").value = "";
+      syncChips(); renderFeatures();
+      const el = document.getElementById(stageId(s));
+      if (el) el.scrollIntoView();
+      closeDrawer();
+    });
+    nav.append(a);
+  });
+}
+
+const side = $("side"), scrim = $("scrim"), menuBtn = $("menuBtn");
+function openDrawer(){ side.classList.add("open"); scrim.classList.add("show"); menuBtn.setAttribute("aria-expanded","true"); }
+function closeDrawer(){ side.classList.remove("open"); scrim.classList.remove("show"); menuBtn.setAttribute("aria-expanded","false"); }
+menuBtn.addEventListener("click", () => side.classList.contains("open") ? closeDrawer() : openDrawer());
+scrim.addEventListener("click", closeDrawer);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+side.addEventListener("click", (e) => { if (e.target.closest("a[data-spy]") && e.target.closest("a").id !== "intLink") closeDrawer(); });
+window.addEventListener("resize", () => { if (window.innerWidth > 1000) closeDrawer(); });
+
+function setupSpy(){
+  const links = {};
+  document.querySelectorAll("a[data-spy]").forEach(a => links[a.dataset.spy] = a);
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting){
+        Object.values(links).forEach(a => a.removeAttribute("aria-current"));
+        const a = links[en.target.id]; if (a) a.setAttribute("aria-current","true");
+      }
+    });
+  }, { rootMargin: "-15% 0px -75% 0px" });
+  Object.keys(links).forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+}
+
+/* ---------- tema (default terang) ---------- */
+function applyTheme(t){
+  if (t === "dark") document.documentElement.setAttribute("data-theme","dark");
+  else document.documentElement.removeAttribute("data-theme");
+  document.querySelectorAll("[data-theme-btn]").forEach(b => b.textContent = t === "dark" ? "Mode terang" : "Mode gelap");
+}
+let theme = "light";
+try { if (localStorage.getItem("loque-theme") === "dark") theme = "dark"; } catch(e){}
+applyTheme(theme);
+document.querySelectorAll("[data-theme-btn]").forEach(b => b.addEventListener("click", () => {
+  theme = theme === "dark" ? "light" : "dark";
+  applyTheme(theme);
+  try { localStorage.setItem("loque-theme", theme); } catch(e){}
+}));
+
+renderPublic(); renderInternal(); buildChips(); renderFeatures(); buildStageNav(); setupSpy();
+if (location.hash === "#internal") setInternal(true, true);
+</script>
+</body>
+</html>
