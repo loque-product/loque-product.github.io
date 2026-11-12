@@ -144,7 +144,7 @@ window.Loque.roles = window.Loque.roles || {};
   <button class="menu-btn" id="menuBtn" type="button" aria-label="Buka navigasi" aria-expanded="false" aria-controls="side">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
   </button>
-  <a class="brand" href="${L.url.home()}"><span class="brand-mark" aria-hidden="true"></span><div class="brand-name">Loque</div></a>
+  <a class="brand" href="${L.url.home()}"><img src="${L.url.home()}favicon.svg" class="brand-mark" alt="Loque"><div class="brand-name">Loque</div></a>
   <button class="theme-btn" data-theme-btn type="button">Mode gelap</button>
 </header>
 <div class="scrim" id="scrim"></div>
@@ -152,7 +152,7 @@ window.Loque.roles = window.Loque.roles || {};
 <div class="shell">
   <nav class="side" id="side" aria-label="Navigasi halaman">
     <a class="brand" href="${L.url.home()}">
-      <span class="brand-mark" aria-hidden="true"></span>
+      <img src="${L.url.home()}favicon.svg" class="brand-mark" alt="Loque">
       <div class="brand-name">Loque<small>Dokumentasi Produk</small></div>
     </a>
 
